@@ -3,6 +3,7 @@ package boj;
 import java.io.*;
 import java.util.StringTokenizer;
 
+//
 public class boj1018 {
     private static int N, M;
     private static boolean[][] board;
