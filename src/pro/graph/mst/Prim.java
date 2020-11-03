@@ -27,15 +27,7 @@ import java.util.*;
 7 3 2
 2 7 7
  */
-class Node{
-    int s, e, v;
-    public Node(int s, int e, int v){
-        super();
-        this.s = s; //start
-        this.e = e; //end
-        this.v = v; //value
-    }
-}
+
 public class Prim {
     static int N;
     static int E;
@@ -88,17 +80,17 @@ public class Prim {
             visited[currentNode] = true;
             tempList = nodeList[currentNode];
             for(int i=0; i<tempList.size(); i++){
-                if(!visited[tempList.get(i).e]){
+                if(!visited[tempList.get(i).end]){
                     pq.add(tempList.get(i));
                 }
             }
 
             while(!pq.isEmpty()){
                 tempNode = pq.poll();
-                if(!visited[tempNode.e]){
-                    visited[tempNode.e] = true;
-                    answer += tempNode.v;
-                    dq.add(tempNode.e);
+                if(!visited[tempNode.end]){
+                    visited[tempNode.end] = true;
+                    answer += tempNode.value;
+                    dq.add(tempNode.end);
                     break;
                 }
             }
@@ -109,7 +101,7 @@ public class Prim {
 
         @Override
         public int compare(Node o1, Node o2) {
-            return o1.v > o2.v ? 1 : -1;
+            return o1.value > o2.value ? 1 : -1;
         }
     }
 }
