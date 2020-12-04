@@ -37,8 +37,9 @@ public class boj2042 {
             a = Integer.parseInt(st.nextToken());
             b = Integer.parseInt(st.nextToken());
             if (type == 1) {
+                long diff = b - nums[a];
                 nums[a] = b;
-                update(1, b - a, a, 1, N);
+                update(1, diff, a, 1, N);
             } else {
                 bw.write(String.valueOf(sum(1, a, b, 1, N)) + "\n");
             }
@@ -59,7 +60,7 @@ public class boj2042 {
                 + sum(node * 2 + 1, left, right, mid + 1, end);
     }
 
-    private static void update(int node, int diff, int a, int start, int end) {
+    private static void update(int node, long diff, int a, int start, int end) {
         if (a < start || a > end) {
             return;
         }
