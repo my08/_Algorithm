@@ -1,5 +1,17 @@
 package leetcode.stringAndArray;
 
+/*
+String, StringBuilder, StringBuffer의 차이점
+1. String : 객체 생성시 할당된 메모리 공간 변경이 없음.
+- +연산 혹은 concat 시행 시
+ : 기존 문자열에 더해지는것이 아닌 새로운 객체 생성 후 해당 객체 참조(in heap memory) -> 성능이 좋지 않음.
+
+2. StringBuffer
+ : Synchronized, 멀티스레드 환경에서 동기화 지원
+
+3. StringBuilder
+ : 동기화 보장X(단일 스레드 환경에서 사용하는것이 좋다)
+ */
 public class _08_482_LicenseKeyFormatting {
     public static void main(String[] args) {
         String S = "2-5g-3-J";
