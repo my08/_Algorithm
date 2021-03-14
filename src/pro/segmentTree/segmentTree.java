@@ -50,7 +50,7 @@ public class segmentTree {
         if(start != end){
             int mid = (start+end)/2;
             update(tree, node*2, start, mid, index, diff);
-            update(tree, node*2, mid+1, end, index, diff);
+            update(tree, node*2+1, mid+1, end, index, diff);
         }
     }
 

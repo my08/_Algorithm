@@ -1,15 +1,11 @@
 package pro.graph.mst;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
 /*
-7
-11
+7 11
 1 2 2
 2 3 5
 1 3 20
@@ -22,57 +18,119 @@ import java.util.StringTokenizer;
 7 3 2
 2 7 7
  */
+/* Union-Find
+ * 1. Find : Node x 가 어느 집합에 포함되어 있는지 찾는 연산.
+ * 2. Union : Node x가 포함된 집합과 Node y가 포함된 집합을 합치는 연산.
+ */
+/*
+ * 그래프의 간선들을 가중치의 오름차순으로 정렬한다.
+ * 정렬된 간선 리스트에서 순서대로 사이클을 형성하지 않는 간선을 선택한다.
+ * 	- 가장 낮은 가중치를 먼저 선택한다.
+ * 	- 사이클을 형성하는 간선은 제외한다.
+ * 해당 간선을 현재의 MST의 집합에 추가한다.
+ */
 public class Kurskal {
-    private static int N, E, V;
-    private static int[] root;
-    private static PriorityQueue<Node> pq;
-    public static void main(String[] args) throws Exception{
+    static int V, E;
+    static PriorityQueue<Node> queue;
+    static int[] parent;
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        N = Integer.parseInt(br.readLine());    //노드
-        E = Integer.parseInt(br.readLine());    //간선
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
 
-        pq = new PriorityQueue<Node>();
-        root = new int[N+1];
-        for(int i=1; i<N+1; i++){
-            root[i] = i;
+        queue = new PriorityQueue<Node>(E, (n1, n2)-> (int)(n1.cost-n2.cost));
+        parent = new int[V+1];
+
+        for(int i=1;i<=V; i++) {
+            parent[i] = -1;
         }
-        StringTokenizer st;
-        for(int i=0; i<E; i++){
+
+        for(int i=0; i <E; i++) {
             st = new StringTokenizer(br.readLine());
-            Node n = new Node(Integer.parseInt(st.nextToken()),
-                    Integer.parseInt(st.nextToken()),
-                    Integer.parseInt(st.nextToken()));
-            pq.add(n);
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            double cost = Double.parseDouble(st.nextToken());
+            queue.add(new Node(start, end, cost));
         }
 
-        MST();
-        System.out.println(V);
+        double answer = Kruskal();
+
+        bw.write(Integer.toString((int)Math.round(answer)));
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    private static void MST() {
+    private static double Kruskal() {
+        double answer= 0;
+        Node tempNode;
 
-        while(!pq.isEmpty()){
-            Node n = pq.poll();
+        while(!queue.isEmpty()) {
+            tempNode = queue.poll();
+            int start = tempNode.start;
+            int end = tempNode.end;
+            double cost = tempNode.cost;
 
-            int start = find(n.start);
-            int end = find(n.end);
-            if(start == end) continue;
+            int s = find(start);
+            int e = find(end);
+
+            if(s==e) continue;
+
             union(start, end);
-            V += n.value;
+            answer += cost;
+        }
+        return answer;
+    }
+
+    private static int find(int x) {
+        //parent가 음수인 경우, 본인이 root임으로 반
+        if(parent[x] < 0) {
+            return x;
+        }else {
+            //한쪽으로만 치우쳐있는 tree구조일 경우, 루트노드를 찾는데 시간이 많이 소요되므로,
+            //동일한 루트인 경우 바로 루트노드로 바꿔준다.
+            int y = find(parent[x]);
+            parent[x] = y;
+            return y;
         }
     }
 
-    private static void union(int start, int end) {
+    private static void union(int x, int y) {
+        x = find(x);
+        y = find(y);
 
-        start = find(start);
-        end = find(end);
-        if(start == end) return;
-        root[start] = end;
+        if(x == y) return;
+
+        //parent[x], parent[y] 값은 음수이므로, 작은 값이 높이가 더 큰 Node이다.
+        if(parent[x] < parent[y]) {
+            parent[x] += parent[y];
+            parent[y] = x;
+        }else {
+            parent[y] += parent[x];
+            parent[x] = y;
+        }
+
     }
 
-    private static int find(int start) {
-        if(root[start] == start) return start;
-        return root[start] = find(root[start]);
+    static class Node implements Comparable<Node>{
+
+        int start;
+        int end;
+        double cost;
+
+        public Node(int start, int end, double cost) {
+            this.start = start;
+            this.end = end;
+            this.cost = cost;
+        }
+
+        @Override
+        public int compareTo(Node o) {
+            // TODO Auto-generated method stub
+            return this.cost > o.cost ? 1 : -1;
+        }
+
     }
 }

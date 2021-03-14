@@ -2,8 +2,7 @@ package pro.graph.mst;
 
 import javafx.scene.layout.Priority;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 
 /*
@@ -11,10 +10,12 @@ import java.util.*;
 2. 해당 정점에 연결된 모든 간선 중 가장 최소비용을 가진 간선을 선택 후 연결한다.
 3. 처음~선택된 간선에 연결된 정점까지 모든 연결된 정점에 연결된 간선 중 가장 비용이 적은 간선을 연결한다.
 4. 모든 정점이 연결될 때 까지 2,3번 반
+(시작 정점만 MST 집합으로 포함됨.
+MST집합에 인접한 정점 중 최소비용인 간선 선택(가중치 최저 선택)
+트리가 N-1개의 간선을 가질 때 까지 반복)
 */
 /*
-7
-11
+7 11
 1 2 2
 2 3 5
 1 3 20
@@ -29,79 +30,92 @@ import java.util.*;
  */
 
 public class Prim {
-    static int N;
-    static int E;
+    static int V, E;
+    static boolean[] visited;
     static ArrayList<Node>[] nodeList;
-    static boolean visited[];
-    static int answer;
-    static ArrayList<Node> array = new ArrayList<>();
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        answer = 0;
-        N = Integer.parseInt(br.readLine());    //정점
-        E = Integer.parseInt(br.readLine());    //간선
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        V = Integer.parseInt(st.nextToken());
+        E = Integer.parseInt(st.nextToken());
 
-        visited = new boolean[N+1];
+        nodeList = new ArrayList[V+1];
+        visited = new boolean[V+1];
 
-        nodeList = new ArrayList[N+1];          //각 노드의 연결상태를 저장
-        for(int i=1; i<=N; i++){
-            nodeList[i] = new ArrayList<Node>();
+        for(int i=1; i<=V; i++) {
+            nodeList[i] = new ArrayList<>();
         }
 
-        int start = 0;
-        int end = 0;
-        int value = 0;
-
-        StringTokenizer st;
-
-        for(int i=0; i<E; i++){
+        for(int i=0; i <E; i++) {
             st = new StringTokenizer(br.readLine());
-            start = Integer.parseInt(st.nextToken());
-            end = Integer.parseInt(st.nextToken());
-            value = Integer.parseInt(st.nextToken());
-            nodeList[start].add(new Node(start,end,value));
-            nodeList[end].add(new Node(end,start,value));
+            int start = Integer.parseInt(st.nextToken());
+            int end = Integer.parseInt(st.nextToken());
+            double cost = Double.parseDouble(st.nextToken());
+            nodeList[start].add(new Node(start, end, cost));
+            nodeList[end].add(new Node(end, start, cost));
         }
-        
-        MST();
-        System.out.println(answer);
+
+        double answer = Prim();
+
+        bw.write(Integer.toString((int)Math.round(answer)));
+        bw.flush();
+        bw.close();
+        br.close();
+
     }
 
-    private static void MST() {
-        Compare cp = new Compare();
-        PriorityQueue<Node> pq = new PriorityQueue<>(cp); //비용 간선
-        Deque<Integer> dq = new ArrayDeque<>(); //방문 큐
-        dq.add(1);
+    static double Prim() {
+        Queue<Node> queue = new PriorityQueue<Node>();
+        Queue<Integer> numQueue = new LinkedList<>();
+        double answer = 0;
+        numQueue.add(1);
 
-        ArrayList<Node> tempList;
-        Node tempNode;
-        while(!dq.isEmpty()){
-            int currentNode = dq.poll();
-            visited[currentNode] = true;
-            tempList = nodeList[currentNode];
-            for(int i=0; i<tempList.size(); i++){
-                if(!visited[tempList.get(i).end]){
-                    pq.add(tempList.get(i));
+        while(!numQueue.isEmpty()) {
+            int num = numQueue.poll();
+            visited[num] = true;
+
+            for(int i=0; i<nodeList[num].size(); i++) {
+                if(!visited[nodeList[num].get(i).end]) { //도착지 방문 안했다면
+                    queue.add(nodeList[num].get(i));
                 }
             }
 
-            while(!pq.isEmpty()){
-                tempNode = pq.poll();
-                if(!visited[tempNode.end]){
-                    visited[tempNode.end] = true;
-                    answer += tempNode.value;
-                    dq.add(tempNode.end);
+            while(!queue.isEmpty()) {
+                Node node = queue.poll();
+                if(!visited[node.end]) {
+                    visited[node.end] = true;
+                    answer += node.cost;
+                    numQueue.add(node.end);
                     break;
                 }
             }
+
         }
+
+        return answer;
+
     }
 
-    private static class Compare implements Comparator<Node> {
+
+
+    static class Node implements Comparable<Node>{
+
+        int start;
+        int end;
+        double cost;
+
+        public Node(int start, int end, double cost) {
+            this.start = start;
+            this.end = end;
+            this.cost = cost;
+        }
 
         @Override
-        public int compare(Node o1, Node o2) {
-            return o1.value > o2.value ? 1 : -1;
+        public int compareTo(Node o) {
+            // TODO Auto-generated method stub
+            return this.cost > o.cost ? 1 : -1;
         }
+
     }
 }

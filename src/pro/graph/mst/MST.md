@@ -40,38 +40,34 @@
     - 두 정점의 부모 노드가 일치할 경우 연결되어있음
     - 시간복잡도 : O(1)
 
-
-<pre>
-<code>
-int MAX_SIZE = N;
-int root[MAX_SIZE];
-int rank[MAX_SIZE];
-for(int i=0; i<<![cdata[<]]>MAX_SIZE; i++){
-    root[i] = i;
-    rank[i] = 0;
-}
-
-int find(int x){
-    if(root[x] == x) return x;
-    return root[x] = find(root[x]);
-}
-
-void union(int x, int y){
-    x = find(x);
-    y = find(y);
-    
-    if(x == y) return;
-    
-    //트리의 높이에 따라 낮은 트리를 높은 트리 밑에 넣는다.
-    if(rank[x] < rank[y]){
-        root[x] = y;
-    }else{
-        root[y] = x;
+```java
+private static int find(int x) {
+        //parent가 음수인 경우, 본인이 root임으로 반
+        if(parent[x] < 0) {
+            return x;
+        }else {
+            //한쪽으로만 치우쳐있는 tree구조일 경우, 루트노드를 찾는데 시간이 많이 소요되므로,
+            //동일한 루트인 경우 바로 루트노드로 바꿔준다.
+            int y = find(parent[x]);
+            parent[x] = y;
+            return y;
+        }
     }
-    
-    if(rank[x] == rank[y]){
-        rank[x]++;      //높이가 같은 경우 합치고 height+1;
+
+    private static void union(int x, int y) {
+        x = find(x);
+        y = find(y);
+
+        if(x == y) return;
+
+        //parent[x], parent[y] 값은 음수이므로, 작은 값이 높이가 더 큰 Node이다.
+        if(parent[x] < parent[y]) {
+            parent[x] += parent[y];
+            parent[y] = x;
+        }else {
+            parent[y] += parent[x];
+            parent[x] = y;
+        }
+
     }
-}
-</code>
-</pre>
+```
