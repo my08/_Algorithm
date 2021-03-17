@@ -1,4 +1,4 @@
-package boj;
+package boj.mst;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
